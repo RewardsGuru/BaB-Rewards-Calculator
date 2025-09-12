@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>$BaB Daily Reward Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      background: #f5faff;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      background: #e0f7e9;
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #b2dfdb;
+    }
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+
+<h2>💰 $BaB Daily Reward Calculator</h2>
+
+<label for="volume">Daily Trading Volume ($):</label>
+<input type="number" id="volume" placeholder="e.g., 1000000" />
+
+<label for="tokensHeld">Your $BaB Token Holdings:</label>
+<input type="number" id="tokensHeld" placeholder="e.g., 15000000" />
+
+<label for="totalSupply">Total $BaB Token Supply:</label>
+<input type="number" id="totalSupply" value="5600000000" />
+
+<label for="rewardPercent">Reward Percentage (% of volume):</label>
+<input type="number" id="rewardPercent" value="3" />
+
+<button onclick="calculateReward()">Calculate My Daily Reward</button>
+
+<div class="result" id="result">Enter values above to see your estimated reward.</div>
+
+<script>
+  function calculateReward() {
+    const volume = parseFloat(document.getElementById('volume').value);
+    const tokensHeld = parseFloat(document.getElementById('tokensHeld').value);
+    const totalSupply = parseFloat(document.getElementById('totalSupply').value);
+    const rewardPercent = parseFloat(document.getElementById('rewardPercent').value);
+
+    if (isNaN(volume) || isNaN(tokensHeld) || isNaN(totalSupply) || isNaN(rewardPercent)) {
+      document.getElementById('result').innerText = "⚠️ Please fill in all fields with valid numbers.";
+      return;
+    }
+
+    const rewardPool = volume * (rewardPercent / 100);
+    const userShare = tokensHeld / totalSupply;
+    const dailyReward = rewardPool * userShare;
+
+    document.getElementById('result').innerText = `🎉 Estimated Daily Reward: $${dailyReward.toFixed(2)}`;
+  }
+</script>
+
+</body>
+</html>
