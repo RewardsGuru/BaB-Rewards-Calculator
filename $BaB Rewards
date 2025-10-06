@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>$BaB Daily Reward Calculator</title>
+  <title>$BaB Reward Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,11 +36,36 @@
       text-align: center;
       color: #2e7d32;
     }
+    .tab-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .tab-buttons button {
+      flex: 1;
+      margin: 2px;
+      background: #c8e6c9;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .tab-buttons button.active {
+      background: #2e7d32;
+      color: white;
+    }
   </style>
 </head>
 <body>
 
-<h2>💰 $BaB Daily Reward Calculator</h2>
+<h2>💰 $BaB Reward Calculator</h2>
+
+<div class="tab-buttons">
+  <button id="dailyTab" class="active" onclick="setTab('daily')">Daily</button>
+  <button id="weeklyTab" onclick="setTab('weekly')">Weekly</button>
+  <button id="monthlyTab" onclick="setTab('monthly')">Monthly</button>
+  <button id="annualTab" onclick="setTab('annual')">Annual</button>
+</div>
 
 <label for="volume">Daily Trading Volume ($):</label>
 <input type="number" id="volume" placeholder="e.g., 1000000" />
@@ -49,16 +74,25 @@
 <input type="number" id="tokensHeld" placeholder="e.g., 15000000" />
 
 <label for="totalSupply">Total $BaB Token Supply:</label>
-<input type="number" id="totalSupply" value="5600000000" />
+<input type="number" id="totalSupply" value="5560184929.295840667" />
 
 <label for="rewardPercent">Reward Percentage (% of volume):</label>
 <input type="number" id="rewardPercent" value="3" />
 
-<button onclick="calculateReward()">Calculate My Daily Reward</button>
+<button onclick="calculateReward()">Calculate My Reward</button>
 
 <div class="result" id="result">Enter values above to see your estimated reward.</div>
 
 <script>
+  let currentTab = 'daily';
+
+  function setTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tab + 'Tab').classList.add('active');
+    document.getElementById('result').innerText = `Ready to calculate your ${tab} reward.`;
+  }
+
   function calculateReward() {
     const volume = parseFloat(document.getElementById('volume').value);
     const tokensHeld = parseFloat(document.getElementById('tokensHeld').value);
@@ -72,9 +106,27 @@
 
     const rewardPool = volume * (rewardPercent / 100);
     const userShare = tokensHeld / totalSupply;
-    const dailyReward = rewardPool * userShare;
+    let reward = rewardPool * userShare;
 
-    document.getElementById('result').innerText = `🎉 Estimated Daily Reward: $${dailyReward.toFixed(2)}`;
+    let label = '';
+    switch (currentTab) {
+      case 'weekly':
+        reward *= 7;
+        label = 'Weekly';
+        break;
+      case 'monthly':
+        reward *= 30;
+        label = 'Monthly';
+        break;
+      case 'annual':
+        reward *= 365;
+        label = 'Annual';
+        break;
+      default:
+        label = 'Daily';
+    }
+
+    document.getElementById('result').innerText = `🎉 Estimated ${label} Reward: $${reward.toFixed(2)}`;
   }
 </script>
 
