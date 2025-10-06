@@ -5,246 +5,250 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>$BaB Solana Rewards Calculator</title>
   <style>
-    :root {
-      --midnight: #050016;
-      --indigo: #140033;
-      --gradient-bg: linear-gradient(180deg, #0a0028, #050016);
-      --cyan: #00f6ff;
-      --purple: #9b5cff;
-      --gold: #f9d976;
-      --gold-dark: #c9a23f;
-      --text-light: #e8e8ff;
+    :root{
+      --bg1:#0a0028; --bg2:#050016;
+      --cyan:#00f6ff; --purple:#9b5cff; --gold:#f9d976; --gold-dark:#c9a23f;
+      --text:#e8e8ff;
+    }
+    /* page */
+    body{
+      margin:0; color:var(--text); font-family:'Segoe UI',Arial,sans-serif;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      max-width:640px; padding:0 16px 20px; margin-inline:auto;
     }
 
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--gradient-bg);
-      color: var(--text-light);
-      margin: 0;
-      padding: 20px;
-      max-width: 520px;
-      margin-inline: auto;
+    /* ====== HERO BANNER ====== */
+    .hero{
+      position:relative; overflow:hidden; margin:16px auto 18px;
+      border-radius:14px; border:1px solid rgba(255,255,255,.15);
+      background:radial-gradient(120% 120% at 70% 10%, rgba(0,255,255,.12), transparent 60%),
+                 radial-gradient(120% 120% at 30% 90%, rgba(155,92,255,.12), transparent 60%),
+                 linear-gradient(135deg, #0f0533, #13003a 50%, #0a0128);
+      box-shadow:0 0 40px rgba(0,255,255,.10), inset 0 0 40px rgba(155,92,255,.10);
+    }
+    .hero-inner{ padding:18px 14px 8px; }
+    .hero h1{
+      margin:0 0 8px; text-align:center; letter-spacing:.5px; font-weight:800;
+      font-size: clamp(1.05rem, 4.2vw, 1.35rem);
+      background:linear-gradient(90deg,var(--gold),var(--cyan),var(--purple));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      text-shadow:0 0 22px rgba(0,255,255,.25);
+    }
+    .hero-sub{
+      text-align:center; font-size:.9rem; opacity:.9; margin-bottom:8px;
     }
 
-    h2 {
-      text-align: center;
-      background: linear-gradient(90deg, var(--gold), var(--cyan), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: 1.6rem;
-      margin-bottom: 25px;
-      letter-spacing: 1px;
+    /* SVG sizing */
+    .bull-wrap{ display:flex; justify-content:center; }
+    svg#bullBanner{ width:100%; max-width:560px; height:auto; display:block; }
+
+    /* Lightning animation */
+    @keyframes zap {
+      0% { stroke-dashoffset:220; opacity:.35; filter:drop-shadow(0 0 0 rgba(0,255,255,.0));}
+      30%{ opacity:1; }
+      50% { stroke-dashoffset:0; opacity:.9; filter:drop-shadow(0 0 8px rgba(0,255,255,.9));}
+      70%{ opacity:.6; }
+      100%{ stroke-dashoffset:-220; opacity:.2; filter:drop-shadow(0 0 0 rgba(0,255,255,.0));}
+    }
+    .bolt{
+      stroke:var(--cyan); stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round;
+      stroke-dasharray:220; animation: zap 2.8s linear infinite;
+    }
+    .bolt.b2{ stroke:var(--purple); animation-delay:.7s; }
+    .glow{ filter: drop-shadow(0 0 6px rgba(0,255,255,.8)); }
+
+    /* Inputs / cards */
+    label{ font-weight:700; color:var(--gold); display:block; margin:14px 0 6px; }
+    input,select{
+      width:100%; padding:12px; font-size:1rem; border-radius:10px;
+      border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06);
+      color:var(--text); outline:none; transition: box-shadow .25s,border .25s,background .25s;
+    }
+    input:focus,select:focus{ box-shadow:0 0 12px var(--cyan); border-color:var(--cyan);
+      background:rgba(255,255,255,.08); }
+
+    .info-box{
+      background:rgba(255,255,255,.08); border:1px solid var(--gold-dark);
+      color:var(--gold); text-align:center; border-radius:10px; padding:10px; margin-top:6px;
     }
 
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.05);
-      color: var(--text-light);
-      outline: none;
-      transition: all 0.3s ease;
+    .breakdown{
+      margin-top:100px; border-radius:12px; padding:14px;
+      border:1px solid rgba(0,255,255,.35);
+      background:rgba(10,0,40,.45);
+      box-shadow:0 0 22px rgba(0,255,255,.15);
+      font-weight:700;
+    }
+    .breakdown div{
+      background:rgba(15,0,60,.55); border:1px solid rgba(155,92,255,.45);
+      margin:8px 0; padding:10px; border-radius:8px; color:var(--gold); text-align:center;
+    }
+    .breakdown div span{
+      display:block; color:var(--cyan); font-size:1.25rem; margin-top:4px;
+      text-shadow:0 0 8px var(--purple);
     }
 
-    input:focus, select:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 10px var(--cyan);
-      background: rgba(255,255,255,0.08);
+    .result{
+      margin:22px 0 120px; text-align:center; font-weight:800; color:var(--cyan);
+      text-shadow:0 0 6px var(--purple);
     }
 
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 15px;
-      color: var(--gold);
-      text-shadow: 0 0 4px #000;
+    /* Floating CTA */
+    .floating-btn{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      border:none; border-radius:42px; padding:16px 30px; font-weight:900; cursor:pointer;
+      background:linear-gradient(90deg,var(--purple),var(--cyan),var(--gold));
+      color:#000; font-size:1.05rem; z-index:9999;
+      box-shadow:0 0 25px rgba(0,255,255,.45);
+      animation:pulseGlow 3.5s infinite alternate; transition:transform .25s,box-shadow .25s;
+    }
+    .floating-btn:hover{ transform:translateX(-50%) scale(1.05);
+      box-shadow:0 0 30px rgba(155,92,255,.8); }
+    @keyframes pulseGlow{
+      0%{ box-shadow:0 0 14px rgba(155,92,255,.45),0 0 26px rgba(0,255,255,.35),0 0 50px rgba(249,217,118,.24); }
+      50%{ box-shadow:0 0 24px rgba(0,255,255,.6),0 0 46px rgba(155,92,255,.55),0 0 70px rgba(249,217,118,.3); }
+      100%{ box-shadow:0 0 36px rgba(155,92,255,.8),0 0 70px rgba(0,255,255,.6),0 0 100px rgba(249,217,118,.4); }
     }
 
-    .info-box {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--gold-dark);
-      padding: 10px;
-      border-radius: 6px;
-      text-align: center;
-      margin-top: 5px;
-      font-size: 0.95rem;
-      color: var(--gold);
-    }
-
-    .breakdown {
-      margin-top: 100px;
-      background: rgba(0, 0, 30, 0.4);
-      border: 1px solid rgba(0,255,255,0.3);
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
-    }
-
-    .breakdown div {
-      margin: 8px 0;
-      padding: 10px;
-      background: rgba(10, 0, 50, 0.6);
-      border-radius: 6px;
-      border: 1px solid rgba(150, 100, 255, 0.4);
-      text-align: center;
-      color: var(--gold);
-    }
-
-    .breakdown div span {
-      display: block;
-      color: var(--cyan);
-      font-size: 1.3rem;
-      margin-top: 4px;
-      text-shadow: 0 0 8px var(--purple);
-    }
-
-    .result {
-      margin-top: 25px;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: var(--cyan);
-      margin-bottom: 120px;
-      text-shadow: 0 0 6px var(--purple);
-    }
-
-    /* Floating glowing button */
-    .floating-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(90deg, var(--purple), var(--cyan), var(--gold));
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 40px;
-      padding: 16px 30px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      box-shadow: 0px 0px 25px rgba(0, 255, 255, 0.4);
-      transition: all 0.25s ease;
-      z-index: 9999;
-      animation: pulseGlow 3.5s infinite alternate;
-    }
-
-    .floating-btn:hover {
-      transform: translateX(-50%) scale(1.05);
-      box-shadow: 0px 0px 30px rgba(155, 92, 255, 0.8);
-    }
-
-    @keyframes pulseGlow {
-      0% {
-        box-shadow: 0 0 15px rgba(155,92,255,0.4),
-                    0 0 25px rgba(0,255,255,0.3),
-                    0 0 50px rgba(255,240,150,0.2);
-      }
-      50% {
-        box-shadow: 0 0 25px rgba(0,255,255,0.6),
-                    0 0 45px rgba(155,92,255,0.5),
-                    0 0 70px rgba(255,255,180,0.3);
-      }
-      100% {
-        box-shadow: 0 0 35px rgba(155,92,255,0.8),
-                    0 0 65px rgba(0,255,255,0.6),
-                    0 0 100px rgba(255,240,150,0.4);
-      }
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 15px;
-      }
-      h2 {
-        font-size: 1.4rem;
-      }
-      .floating-btn {
-        width: 90%;
-        border-radius: 12px;
-        font-size: 1.1rem;
-      }
+    @media (max-width:600px){
+      body{ padding:0 14px 20px; }
+      .floating-btn{ width:92%; border-radius:14px; }
     }
   </style>
 </head>
 <body>
 
-<h2>💰 $BaB Solana Rewards Calculator</h2>
+  <!-- HERO with Bull + lightning -->
+  <div class="hero">
+    <div class="hero-inner">
+      <h1>$BaB Rewards Calculator</h1>
+      <div class="hero-sub">Billions the Bull • Solana-style power • Holder payouts preview</div>
+      <div class="bull-wrap">
+        <!-- Inline SVG banner (bull + sunglasses + lightning) -->
+        <svg id="bullBanner" viewBox="0 0 880 260" role="img" aria-label="Billions the Bull banner">
+          <defs>
+            <radialGradient id="faceGlow" cx="50%" cy="40%" r="70%">
+              <stop offset="0%" stop-color="#2a1600"/>
+              <stop offset="80%" stop-color="#0b0516"/>
+            </radialGradient>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f9d976"/>
+              <stop offset="100%" stop-color="#c9a23f"/>
+            </linearGradient>
+            <linearGradient id="lensGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00f6ff"/>
+              <stop offset="100%" stop-color="#9b5cff"/>
+            </linearGradient>
+          </defs>
 
-<label for="volume">Daily Trading Volume ($):</label>
-<input type="number" id="volume" placeholder="e.g., 1000000" />
+          <!-- Lightning bolts -->
+          <path class="bolt glow" d="M40 40 L120 60 L90 90 L150 110 L110 150 L170 165" />
+          <path class="bolt b2 glow" d="M735 35 L675 70 L710 95 L650 120 L690 150 L620 175" />
 
-<label for="tokensHeld">Your $BaB Token Holdings:</label>
-<input type="number" id="tokensHeld" placeholder="e.g., 15000000" />
+          <!-- Simple stylized bull head -->
+          <g transform="translate(180,20) scale(1.0)">
+            <!-- horns -->
+            <path d="M60,55 C10,10 0,10 5,45 C35,40 45,55 60,55 Z" fill="url(#goldGrad)" opacity=".95"/>
+            <path d="M430,55 C480,10 490,10 485,45 C455,40 445,55 430,55 Z" fill="url(#goldGrad)" opacity=".95"/>
+            <!-- head -->
+            <ellipse cx="245" cy="120" rx="210" ry="95" fill="url(#faceGlow)" stroke="#3b2a12" stroke-width="2"/>
 
-<label for="totalSupply">Total $BaB Token Supply:</label>
-<input type="number" id="totalSupply" value="5560184929.295840667" />
+            <!-- sunglasses bar -->
+            <rect x="115" y="95" width="260" height="10" rx="5" fill="#111"/>
 
-<label>Transaction Tax on Volume:</label>
-<div class="info-box">📊 Total Tax = <b>6%</b> of Volume</div>
+            <!-- left lens -->
+            <rect x="130" y="105" width="120" height="48" rx="10" fill="url(#lensGrad)" stroke="#0ff" stroke-width="2"/>
+            <text x="190" y="137" text-anchor="middle" font-size="30" font-weight="900"
+                  fill="#000" style="paint-order: stroke; stroke:#fff; stroke-width:2px;">$BaB</text>
 
-<label for="holderPercent">Portion Distributed to Holders:</label>
-<select id="holderPercent" onchange="updateHolderPercentText()">
-  <option value="50" selected>50% of Tax (3% of Volume)</option>
-  <option value="80">80% of Tax (4.8% of Volume)</option>
-</select>
+            <!-- right lens -->
+            <rect x="280" y="105" width="120" height="48" rx="10" fill="url(#lensGrad)" stroke="#0ff" stroke-width="2"/>
+            <text x="340" y="137" text-anchor="middle" font-size="30" font-weight="900"
+                  fill="#000" style="paint-order: stroke; stroke:#fff; stroke-width:2px;">$BaB</text>
 
-<div class="info-box" id="holderPercentDisplay">
-  💎 Effective Holder Reward: <b>3.00%</b> of Volume
-</div>
+            <!-- nose -->
+            <ellipse cx="245" cy="170" rx="60" ry="28" fill="#1b0e00" stroke="#3b2a12" stroke-width="2"/>
+            <ellipse cx="225" cy="170" rx="9" ry="13" fill="#000"/>
+            <ellipse cx="265" cy="170" rx="9" ry="13" fill="#000"/>
+          </g>
 
-<div class="breakdown" id="breakdown">
-  <div>Daily Reward <span id="dailyReward">$0.00</span></div>
-  <div>Weekly Reward <span id="weeklyReward">$0.00</span></div>
-  <div>Monthly Reward <span id="monthlyReward">$0.00</span></div>
-  <div>Annual Reward <span id="annualReward">$0.00</span></div>
-</div>
+          <!-- Title text glow under SVG (secondary) -->
+          <text x="50%" y="240" text-anchor="middle" font-size="20" fill="url(#goldGrad)"
+                style="letter-spacing:1px; text-shadow: 0 0 12px rgba(249,217,118,.65);">
+            Billions the Bull • Solana Rewards
+          </text>
+        </svg>
+      </div>
+    </div>
+  </div>
 
-<div class="result" id="result">Enter values above to see your estimated rewards.</div>
+  <!-- Inputs -->
+  <label for="volume">Daily Trading Volume ($):</label>
+  <input type="number" id="volume" placeholder="e.g., 1000000" />
 
-<button class="floating-btn" onclick="calculateReward()">⚡ Calculate My Rewards</button>
+  <label for="tokensHeld">Your $BaB Token Holdings:</label>
+  <input type="number" id="tokensHeld" placeholder="e.g., 15000000" />
 
-<script>
-  function updateHolderPercentText() {
-    const holderPercent = parseFloat(document.getElementById('holderPercent').value);
-    const totalTax = 6;
-    const rewardPercent = totalTax * (holderPercent / 100);
-    document.getElementById('holderPercentDisplay').innerHTML =
-      `💎 Effective Holder Reward: <b>${rewardPercent.toFixed(2)}%</b> of Volume`;
-  }
+  <label for="totalSupply">Total $BaB Token Supply:</label>
+  <input type="number" id="totalSupply" value="5560184929.295840667" />
 
-  function calculateReward() {
-    const volume = parseFloat(document.getElementById('volume').value);
-    const tokensHeld = parseFloat(document.getElementById('tokensHeld').value);
-    const totalSupply = parseFloat(document.getElementById('totalSupply').value);
-    const holderPercent = parseFloat(document.getElementById('holderPercent').value);
+  <label>Transaction Tax on Volume:</label>
+  <div class="info-box">📊 Total Tax = <b>6%</b> of Volume</div>
 
-    if (isNaN(volume) || isNaN(tokensHeld) || isNaN(totalSupply)) {
-      document.getElementById('result').innerText = "⚠️ Please fill in all fields with valid numbers.";
-      return;
+  <label for="holderPercent">Portion Distributed to Holders:</label>
+  <select id="holderPercent" onchange="updateHolderPercentText()">
+    <option value="50" selected>50% of Tax (3% of Volume)</option>
+    <option value="80">80% of Tax (4.8% of Volume)</option>
+  </select>
+
+  <div class="info-box" id="holderPercentDisplay">
+    💎 Effective Holder Reward: <b>3.00%</b> of Volume
+  </div>
+
+  <!-- Rewards -->
+  <div class="breakdown" id="breakdown">
+    <div>Daily Reward <span id="dailyReward">$0.00</span></div>
+    <div>Weekly Reward <span id="weeklyReward">$0.00</span></div>
+    <div>Monthly Reward <span id="monthlyReward">$0.00</span></div>
+    <div>Annual Reward <span id="annualReward">$0.00</span></div>
+  </div>
+
+  <div class="result" id="result">Enter values above to see your estimated rewards.</div>
+
+  <!-- Floating CTA -->
+  <button class="floating-btn" onclick="calculateReward()">⚡ Calculate My Rewards</button>
+
+  <script>
+    function updateHolderPercentText(){
+      const holderPercent = parseFloat(document.getElementById('holderPercent').value);
+      const totalTax = 6;
+      const rewardPercent = totalTax * (holderPercent/100);
+      document.getElementById('holderPercentDisplay').innerHTML =
+        `💎 Effective Holder Reward: <b>${rewardPercent.toFixed(2)}%</b> of Volume`;
     }
 
-    const totalTaxPercent = 6;
-    const rewardPercent = (totalTaxPercent * (holderPercent / 100));
+    function calculateReward(){
+      const volume = parseFloat(document.getElementById('volume').value);
+      const tokensHeld = parseFloat(document.getElementById('tokensHeld').value);
+      const totalSupply = parseFloat(document.getElementById('totalSupply').value);
+      const holderPercent = parseFloat(document.getElementById('holderPercent').value);
 
-    const rewardPool = volume * (rewardPercent / 100);
-    const userShare = tokensHeld / totalSupply;
-    const dailyReward = rewardPool * userShare;
-    const weeklyReward = dailyReward * 7;
-    const monthlyReward = dailyReward * 30;
-    const annualReward = dailyReward * 365;
+      if (isNaN(volume) || isNaN(tokensHeld) || isNaN(totalSupply)) {
+        document.getElementById('result').innerText = "⚠️ Please fill in all fields with valid numbers.";
+        return;
+      }
+      const totalTaxPercent = 6;
+      const rewardPercent = totalTaxPercent * (holderPercent/100); // 3% or 4.8%
+      const rewardPool = volume * (rewardPercent / 100);
+      const userShare = tokensHeld / totalSupply;
 
-    document.getElementById('dailyReward').innerText = `$${dailyReward.toFixed(2)}`;
-    document.getElementById('weeklyReward').innerText = `$${weeklyReward.toFixed(2)}`;
-    document.getElementById('monthlyReward').innerText = `$${monthlyReward.toFixed(2)}`;
-    document.getElementById('annualReward').innerText = `$${annualReward.toFixed(2)}`;
-    document.getElementById('result').innerText = "Rewards updated.";
-  }
-</script>
-
+      const daily = rewardPool * userShare;
+      document.getElementById('dailyReward').innerText   = `$${daily.toFixed(2)}`;
+      document.getElementById('weeklyReward').innerText  = `$${(daily*7).toFixed(2)}`;
+      document.getElementById('monthlyReward').innerText = `$${(daily*30).toFixed(2)}`;
+      document.getElementById('annualReward').innerText  = `$${(daily*365).toFixed(2)}`;
+      document.getElementById('result').innerText = "Rewards updated.";
+    }
+  </script>
 </body>
 </html>
