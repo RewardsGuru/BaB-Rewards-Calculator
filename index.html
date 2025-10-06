@@ -5,67 +5,132 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>$BaB Reward Calculator</title>
   <style>
+    :root {
+      --green: #2e7d32;
+      --green-dark: #1b5e20;
+      --light-green: #e8f5e9;
+    }
+
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
       max-width: 500px;
       margin: auto;
       background: #f5faff;
+      box-sizing: border-box;
     }
-    input, button {
+
+    h2 {
+      text-align: center;
+      color: var(--green);
+    }
+
+    input, select {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin: 10px 0;
       font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
+
     label {
       font-weight: bold;
       display: block;
       margin-top: 15px;
     }
-    .result {
-      margin-top: 20px;
-      font-size: 1.3rem;
-      font-weight: bold;
-      background: #e0f7e9;
-      padding: 12px;
+
+    .info-box {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 10px;
       border-radius: 5px;
-      border: 1px solid #b2dfdb;
-    }
-    h2 {
+      font-size: 0.95rem;
+      color: #856404;
+      margin-top: 5px;
       text-align: center;
-      color: #2e7d32;
     }
-    .tab-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .tab-buttons button {
-      flex: 1;
-      margin: 2px;
-      background: #c8e6c9;
-      border: none;
-      cursor: pointer;
-      border-radius: 5px;
+
+    .breakdown {
+      margin-top: 100px; /* adds space above for floating button */
+      background: var(--light-green);
+      border: 1px solid #b2dfdb;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1.1rem;
       font-weight: bold;
     }
-    .tab-buttons button.active {
-      background: #2e7d32;
+
+    .breakdown div {
+      margin: 6px 0;
+      padding: 8px;
+      background: #ffffff;
+      border-radius: 5px;
+      border: 1px solid #c8e6c9;
+      text-align: center;
+    }
+
+    .breakdown div span {
+      display: block;
+      color: var(--green);
+      font-size: 1.2rem;
+      margin-top: 4px;
+    }
+
+    .result {
+      margin-top: 25px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--green-dark);
+      margin-bottom: 100px; /* ensures bottom spacing */
+    }
+
+    /* Floating button styling */
+    .floating-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--green);
       color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      transition: background-color 0.2s ease;
+      z-index: 9999;
+    }
+
+    .floating-btn:hover {
+      background-color: var(--green-dark);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      input, select {
+        font-size: 1rem;
+        padding: 10px;
+      }
+
+      .floating-btn {
+        width: 90%;
+        padding: 16px;
+        font-size: 1.1rem;
+        border-radius: 10px;
+      }
     }
   </style>
 </head>
 <body>
 
 <h2>💰 $BaB Reward Calculator</h2>
-
-<div class="tab-buttons">
-  <button id="dailyTab" class="active" onclick="setTab('daily')">Daily</button>
-  <button id="weeklyTab" onclick="setTab('weekly')">Weekly</button>
-  <button id="monthlyTab" onclick="setTab('monthly')">Monthly</button>
-  <button id="annualTab" onclick="setTab('annual')">Annual</button>
-</div>
 
 <label for="volume">Daily Trading Volume ($):</label>
 <input type="number" id="volume" placeholder="e.g., 1000000" />
@@ -76,57 +141,66 @@
 <label for="totalSupply">Total $BaB Token Supply:</label>
 <input type="number" id="totalSupply" value="5560184929.295840667" />
 
-<label for="rewardPercent">Reward Percentage (% of volume):</label>
-<input type="number" id="rewardPercent" value="3" />
+<label>Transaction Tax on Volume:</label>
+<div class="info-box">📊 Total Tax = <b>6%</b> of Volume</div>
 
-<button onclick="calculateReward()">Calculate My Reward</button>
+<label for="holderPercent">Portion Distributed to Holders:</label>
+<select id="holderPercent" onchange="updateHolderPercentText()">
+  <option value="50" selected>50% of Tax (3% of Volume)</option>
+  <option value="80">80% of Tax (4.8% of Volume)</option>
+</select>
 
-<div class="result" id="result">Enter values above to see your estimated reward.</div>
+<div class="info-box" id="holderPercentDisplay">💎 Effective Holder Reward: <b>3.00%</b> of Volume</div>
+
+<div class="breakdown" id="breakdown">
+  <div>Daily Reward <span id="dailyReward">$0.00</span></div>
+  <div>Weekly Reward <span id="weeklyReward">$0.00</span></div>
+  <div>Monthly Reward <span id="monthlyReward">$0.00</span></div>
+  <div>Annual Reward <span id="annualReward">$0.00</span></div>
+</div>
+
+<div class="result" id="result">Enter values above to see your estimated rewards.</div>
+
+<!-- Floating button -->
+<button class="floating-btn" onclick="calculateReward()">⚡ Calculate My Rewards</button>
 
 <script>
-  let currentTab = 'daily';
-
-  function setTab(tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(tab + 'Tab').classList.add('active');
-    document.getElementById('result').innerText = `Ready to calculate your ${tab} reward.`;
+  function updateHolderPercentText() {
+    const holderPercent = parseFloat(document.getElementById('holderPercent').value);
+    const totalTax = 6;
+    const rewardPercent = totalTax * (holderPercent / 100);
+    document.getElementById('holderPercentDisplay').innerHTML =
+      `💎 Effective Holder Reward: <b>${rewardPercent.toFixed(2)}%</b> of Volume`;
   }
 
   function calculateReward() {
     const volume = parseFloat(document.getElementById('volume').value);
     const tokensHeld = parseFloat(document.getElementById('tokensHeld').value);
     const totalSupply = parseFloat(document.getElementById('totalSupply').value);
-    const rewardPercent = parseFloat(document.getElementById('rewardPercent').value);
+    const holderPercent = parseFloat(document.getElementById('holderPercent').value);
 
-    if (isNaN(volume) || isNaN(tokensHeld) || isNaN(totalSupply) || isNaN(rewardPercent)) {
+    if (isNaN(volume) || isNaN(tokensHeld) || isNaN(totalSupply)) {
       document.getElementById('result').innerText = "⚠️ Please fill in all fields with valid numbers.";
       return;
     }
 
+    const totalTaxPercent = 6; // fixed
+    const rewardPercent = (totalTaxPercent * (holderPercent / 100)); // e.g. 3% or 4.8%
+
     const rewardPool = volume * (rewardPercent / 100);
     const userShare = tokensHeld / totalSupply;
-    let reward = rewardPool * userShare;
+    const dailyReward = rewardPool * userShare;
+    const weeklyReward = dailyReward * 7;
+    const monthlyReward = dailyReward * 30;
+    const annualReward = dailyReward * 365;
 
-    let label = '';
-    switch (currentTab) {
-      case 'weekly':
-        reward *= 7;
-        label = 'Weekly';
-        break;
-      case 'monthly':
-        reward *= 30;
-        label = 'Monthly';
-        break;
-      case 'annual':
-        reward *= 365;
-        label = 'Annual';
-        break;
-      default:
-        label = 'Daily';
-    }
+    document.getElementById('dailyReward').innerText = `$${dailyReward.toFixed(2)}`;
+    document.getElementById('weeklyReward').innerText = `$${weeklyReward.toFixed(2)}`;
+    document.getElementById('monthlyReward').innerText = `$${monthlyReward.toFixed(2)}`;
+    document.getElementById('annualReward').innerText = `$${annualReward.toFixed(2)}`;
 
-    document.getElementById('result').innerText = `🎉 Estimated ${label} Reward: $${reward.toFixed(2)}`;
+    document.getElementById('result').innerText =
+      `🎉 Rewards calculated using ${rewardPercent.toFixed(2)}% of daily volume for holders.`;
   }
 </script>
 
