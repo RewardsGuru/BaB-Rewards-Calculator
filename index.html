@@ -3,26 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>$BaB Reward Calculator</title>
+  <title>$BaB Solana Rewards Calculator</title>
   <style>
     :root {
-      --green: #2e7d32;
-      --green-dark: #1b5e20;
-      --light-green: #e8f5e9;
+      --emerald: #002d1d;
+      --emerald-gradient: linear-gradient(180deg, #003d27, #001b12);
+      --gold: #f9d976;
+      --gold-dark: #c9a23f;
+      --cyan: #00f6ff;
+      --green-glow: #00c38b;
+      --text-light: #f4f8f4;
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--emerald-gradient);
+      color: var(--text-light);
+      margin: 0;
       padding: 20px;
-      max-width: 500px;
-      margin: auto;
-      background: #f5faff;
-      box-sizing: border-box;
+      max-width: 520px;
+      margin-inline: auto;
     }
 
     h2 {
       text-align: center;
-      color: var(--green);
+      background: linear-gradient(90deg, var(--gold), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.6rem;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
     }
 
     input, select {
@@ -30,51 +40,65 @@
       padding: 12px;
       margin: 10px 0;
       font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      border-radius: 8px;
+      border: 1px solid #0a4732;
+      background: #001c12;
+      color: var(--text-light);
+      outline: none;
+      transition: border 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--green-glow);
+      box-shadow: 0 0 8px var(--green-glow);
     }
 
     label {
       font-weight: bold;
       display: block;
       margin-top: 15px;
+      color: var(--gold);
+      text-shadow: 0 0 4px #000;
     }
 
     .info-box {
-      background: #fff3cd;
-      border: 1px solid #ffeeba;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--gold-dark);
       padding: 10px;
-      border-radius: 5px;
-      font-size: 0.95rem;
-      color: #856404;
-      margin-top: 5px;
+      border-radius: 6px;
       text-align: center;
+      margin-top: 5px;
+      font-size: 0.95rem;
+      color: var(--gold);
     }
 
     .breakdown {
-      margin-top: 100px; /* adds space above for floating button */
-      background: var(--light-green);
-      border: 1px solid #b2dfdb;
-      border-radius: 8px;
-      padding: 12px;
+      margin-top: 100px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid #00b37a;
+      border-radius: 10px;
+      padding: 14px;
       font-size: 1.1rem;
       font-weight: bold;
+      box-shadow: 0 0 15px rgba(0, 255, 200, 0.15);
     }
 
     .breakdown div {
-      margin: 6px 0;
-      padding: 8px;
-      background: #ffffff;
-      border-radius: 5px;
-      border: 1px solid #c8e6c9;
+      margin: 8px 0;
+      padding: 10px;
+      background: rgba(0, 30, 20, 0.6);
+      border-radius: 6px;
+      border: 1px solid rgba(0, 255, 150, 0.3);
       text-align: center;
+      color: var(--gold);
     }
 
     .breakdown div span {
       display: block;
-      color: var(--green);
-      font-size: 1.2rem;
+      color: var(--cyan);
+      font-size: 1.3rem;
       margin-top: 4px;
+      text-shadow: 0 0 6px #00ffee;
     }
 
     .result {
@@ -82,55 +106,53 @@
       text-align: center;
       font-size: 1.2rem;
       font-weight: bold;
-      color: var(--green-dark);
-      margin-bottom: 100px; /* ensures bottom spacing */
+      color: var(--cyan);
+      margin-bottom: 120px;
+      text-shadow: 0 0 6px #00ffee;
     }
 
-    /* Floating button styling */
+    /* Floating button */
     .floating-btn {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: var(--green);
-      color: white;
+      background: linear-gradient(90deg, var(--gold-dark), var(--cyan));
+      color: #000;
       font-weight: bold;
       border: none;
-      border-radius: 30px;
-      padding: 14px 28px;
+      border-radius: 40px;
+      padding: 16px 30px;
       font-size: 1.1rem;
       cursor: pointer;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-      transition: background-color 0.2s ease;
+      box-shadow: 0px 0px 20px rgba(255, 255, 150, 0.4);
+      transition: all 0.25s ease;
       z-index: 9999;
     }
 
     .floating-btn:hover {
-      background-color: var(--green-dark);
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0px 0px 25px rgba(0, 255, 200, 0.6);
     }
 
     @media (max-width: 600px) {
       body {
         padding: 15px;
       }
-
-      input, select {
-        font-size: 1rem;
-        padding: 10px;
+      h2 {
+        font-size: 1.4rem;
       }
-
       .floating-btn {
         width: 90%;
-        padding: 16px;
+        border-radius: 12px;
         font-size: 1.1rem;
-        border-radius: 10px;
       }
     }
   </style>
 </head>
 <body>
 
-<h2>💰 $BaB Reward Calculator</h2>
+<h2>💰 $BaB Solana Rewards Calculator</h2>
 
 <label for="volume">Daily Trading Volume ($):</label>
 <input type="number" id="volume" placeholder="e.g., 1000000" />
@@ -150,7 +172,9 @@
   <option value="80">80% of Tax (4.8% of Volume)</option>
 </select>
 
-<div class="info-box" id="holderPercentDisplay">💎 Effective Holder Reward: <b>3.00%</b> of Volume</div>
+<div class="info-box" id="holderPercentDisplay">
+  💎 Effective Holder Reward: <b>3.00%</b> of Volume
+</div>
 
 <div class="breakdown" id="breakdown">
   <div>Daily Reward <span id="dailyReward">$0.00</span></div>
@@ -161,7 +185,6 @@
 
 <div class="result" id="result">Enter values above to see your estimated rewards.</div>
 
-<!-- Floating button -->
 <button class="floating-btn" onclick="calculateReward()">⚡ Calculate My Rewards</button>
 
 <script>
@@ -184,7 +207,7 @@
       return;
     }
 
-    const totalTaxPercent = 6; // fixed
+    const totalTaxPercent = 6;
     const rewardPercent = (totalTaxPercent * (holderPercent / 100)); // e.g. 3% or 4.8%
 
     const rewardPool = volume * (rewardPercent / 100);
@@ -199,8 +222,8 @@
     document.getElementById('monthlyReward').innerText = `$${monthlyReward.toFixed(2)}`;
     document.getElementById('annualReward').innerText = `$${annualReward.toFixed(2)}`;
 
-    document.getElementById('result').innerText =
-      `🎉 Rewards calculated using ${rewardPercent.toFixed(2)}% of daily volume for holders.`;
+    // Removed text footer per request
+    document.getElementById('result').innerText = "Rewards updated.";
   }
 </script>
 
