@@ -16,7 +16,6 @@
     --gold: #f9d976; --gold-dark: #c9a23f;
     --cyan: #00f6ff; --purple: #9b5cff;
     --text: #e8e8ff;
-    --aurora-a: #0a0028; --aurora-b: #140033; --aurora-c: #001b3a; --aurora-d: #2b007a;
   }
 
   html, body {
@@ -24,14 +23,20 @@
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
     color: var(--text);
-    background: linear-gradient(120deg, var(--aurora-a), var(--aurora-b));
+    /* IMPORTANT: let the aurora show everywhere; body stays transparent */
+    background: transparent;
   }
 
-  /* ===== Animated Aurora Background (brighter + visible motion) ===== */
+  /* ===== GLOBAL BACKGROUND LAYERS =====
+     1) Aurora (moving color)
+     2) Dark mask (keeps everything dark & gently breathes) */
+  .bg-aurora, .bg-darkmask {
+    position: fixed; inset: 0; pointer-events: none;
+  }
+
+  /* Brighter + visible motion aurora, full page */
   .bg-aurora {
-    position: fixed;
-    inset: 0;
-    z-index: -2;
+    z-index: -3;
     background:
       radial-gradient(900px 600px at 20% 30%, rgba(0,255,255,0.35), transparent 70%),
       radial-gradient(900px 600px at 80% 70%, rgba(155,92,255,0.35), transparent 70%),
@@ -39,7 +44,6 @@
     background-size: 200% 200%, 200% 200%, 400% 400%;
     animation: auroraDrift 30s ease-in-out infinite;
   }
-
   @keyframes auroraDrift {
     0%   { background-position: 0% 0%, 100% 100%, 0% 50%; }
     25%  { background-position: 30% 40%, 70% 60%, 50% 50%; }
@@ -48,7 +52,21 @@
     100% { background-position: 0% 0%, 100% 100%, 0% 50%; }
   }
 
-  /* ===== Full-width banner uses <img> (no cropping) ===== */
+  /* Dark mask: keeps the page DARK everywhere; subtle brightness breathing */
+  .bg-darkmask {
+    z-index: -2;
+    background:
+      radial-gradient(1200px 900px at 50% 40%, rgba(5,0,20,0.55), rgba(5,0,20,0.65) 60%, rgba(5,0,20,0.7) 100%),
+      linear-gradient(180deg, rgba(5,0,20,0.65), rgba(5,0,30,0.75));
+    animation: darkBreathe 14s ease-in-out infinite;
+  }
+  @keyframes darkBreathe {
+    0%   { opacity: 0.78; }
+    50%  { opacity: 0.62; }
+    100% { opacity: 0.78; }
+  }
+
+  /* ===== Header banner uses <img> (no cropping) ===== */
   .hero-banner {
     width: 100%;
     border-bottom: 1px solid rgba(255,255,255,0.15);
@@ -90,6 +108,7 @@
     font-size: 1rem;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.2);
+    /* semi-transparent so the dark + aurora show through subtly */
     background: rgba(255,255,255,0.06);
     color: var(--text);
     outline: none;
@@ -102,7 +121,7 @@
   }
 
   .info-box {
-    background: rgba(255,255,255,0.08);
+    background: rgba(5,0,20,0.55);
     border: 1px solid var(--gold-dark);
     color: var(--gold);
     text-align: center;
@@ -117,12 +136,12 @@
     border-radius: 12px;
     padding: 14px;
     border: 1px solid rgba(0,255,255,0.35);
-    background: rgba(10,0,40,0.45);
-    box-shadow: 0 0 22px rgba(0,255,255,0.15);
+    background: rgba(10,0,40,0.65); /* darker glass so gold pops */
+    box-shadow: 0 0 22px rgba(0,255,255,0.12);
     font-weight: 700;
   }
   .breakdown div {
-    background: rgba(15,0,60,0.55);
+    background: rgba(15,0,60,0.60); /* darker than before */
     border: 1px solid rgba(155,92,255,0.45);
     margin: 8px 0;
     padding: 10px;
@@ -187,7 +206,9 @@
 </head>
 <body>
 
+<!-- GLOBAL BACKGROUND -->
 <div class="bg-aurora"></div>
+<div class="bg-darkmask"></div>
 
 <!-- Full-width banner as <img> (no cropping) -->
 <div class="hero-banner">
